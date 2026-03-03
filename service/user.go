@@ -6,12 +6,12 @@ import (
 )
 
 type UserService struct {
-	repo UserRepository
+	Repo UserRepository
 }
 
 type UserRepository interface {
 	IsPhoneNumberExist(phoneNumber string) (bool, error)
-	RegisterUser(userReq RegisterRequest) (CreatedUser entity.User, err error)
+	RegisterUser(entity.User) (entity.User, error)
 }
 
 type RegisterRequest struct {
@@ -21,17 +21,16 @@ type RegisterRequest struct {
 }
 
 type RegisterResponse struct {
-	user     entity.User
+	User     entity.User
 	metadata string
 }
 
 func (u UserService) Register(userReq RegisterRequest) (RegisterResponse, error) {
-
 	// TODO - verify phone number by verification code
 
 	// TODO - validate phone number
 
-	if isPhoneNumberExists, err := u.repo.IsPhoneNumberExist(userReq.PhoneNumber); isPhoneNumberExists || err != nil {
+	if isPhoneNumberExists, err := u.Repo.IsPhoneNumberExist(userReq.PhoneNumber); isPhoneNumberExists || err != nil {
 		if isPhoneNumberExists {
 			return RegisterResponse{}, fmt.Errorf("phoneNumber %s already exists", userReq.PhoneNumber)
 		}
@@ -40,14 +39,20 @@ func (u UserService) Register(userReq RegisterRequest) (RegisterResponse, error)
 
 		}
 	}
+	user := entity.User{
+		ID:          0,
+		PhoneNumber: userReq.PhoneNumber,
+		Avatar:      userReq.Avatar,
+		Name:        userReq.Name,
+	}
 
-	createdUser, err := u.repo.RegisterUser(userReq)
+	createdUser, err := u.Repo.RegisterUser(user)
 	if err != nil {
 		return RegisterResponse{}, fmt.Errorf("register user failed: %w", err)
 	}
 
 	responseUser := RegisterResponse{
-		user:     createdUser,
+		User:     createdUser,
 		metadata: "",
 	}
 	return responseUser, nil
