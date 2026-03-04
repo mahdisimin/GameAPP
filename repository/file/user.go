@@ -36,11 +36,21 @@ func (f File) RegisterUser(user entity.User) (entity.User, error) {
 }
 
 func (f File) getLastID() int {
+	dataSlice, err := f.getAllUsers()
+	if err != nil {
+		return -1
+	}
+	userCount := len(dataSlice)
+	lastID := userCount
+	return lastID
+}
+
+func (f File) getAllUsers() ([]string, error) {
 	dataByte := make([]byte, 1024)
 	file := &os.File{}
 	f.baseRoute = baseRoute
 	if fileTemp, err := os.OpenFile(f.baseRoute+"\\Users.txt", os.O_RDONLY|os.O_CREATE|os.O_RDWR, 0777); err != nil {
-		return -1
+		return []string{}, err
 	} else {
 		file = fileTemp
 	}
@@ -48,10 +58,7 @@ func (f File) getLastID() int {
 	dataByte = dataByte[:dataLength]
 	dataString := string(dataByte)
 	dataSlice := strings.Split(dataString, "\n")
-	userCount := len(dataSlice)
-	lastID := userCount
-
 _:
 	file.Close()
-	return lastID
+	return dataSlice, nil
 }
