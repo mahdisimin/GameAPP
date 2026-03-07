@@ -11,8 +11,19 @@ import (
 func (f File) IsPhoneNumberExist(phoneNumber string) (bool, error) {
 	isExists := false
 
+	allUsers, err := f.GetAllUsers()
+	if err != nil {
+		return false, fmt.Errorf("failed on getAllUsers: %v", err.Error())
+	}
+	for _, user := range allUsers {
+		if user.PhoneNumber == phoneNumber {
+			isExists = true
+			return isExists, nil
+		}
+	}
 	return isExists, nil
 }
+
 func (f File) RegisterUser(user entity.User) (entity.User, error) {
 	userId := uint8(f.getLastID())
 	user.ID = userId
@@ -36,7 +47,7 @@ func (f File) RegisterUser(user entity.User) (entity.User, error) {
 }
 
 func (f File) getLastID() int {
-	dataSlice, err := f.getAllUsers()
+	dataSlice, err := f.GetAllUsers()
 	if err != nil {
 		return -1
 	}
@@ -45,20 +56,28 @@ func (f File) getLastID() int {
 	return lastID
 }
 
-func (f File) getAllUsers() ([]string, error) {
+func (f File) GetAllUsers() ([]entity.User, error) {
+	var userSlice []entity.User
 	dataByte := make([]byte, 1024)
 	file := &os.File{}
 	f.baseRoute = baseRoute
 	if fileTemp, err := os.OpenFile(f.baseRoute+"\\Users.txt", os.O_RDONLY|os.O_CREATE|os.O_RDWR, 0777); err != nil {
-		return []string{}, err
+		return []entity.User{}, err
 	} else {
 		file = fileTemp
 	}
 	dataLength, _ := file.Read(dataByte)
 	dataByte = dataByte[:dataLength]
-	dataString := string(dataByte)
-	dataSlice := strings.Split(dataString, "\n")
-_:
+	userString := string(dataByte)
+	userString = strings.Trim(userString, "\r\n")
+	userStringSlice := strings.Split(userString, "\n")
+	for _, userString := range userStringSlice {
+		user := entity.User{}
+		json.Unmarshal([]byte(userString), &user)
+		userSlice = append(userSlice, user)
+	}
+	//dataString := string(dataByte)
+	//userStringSlice := strings.Split(dataString, "\n")
 	file.Close()
-	return dataSlice, nil
+	return userSlice, nil
 }

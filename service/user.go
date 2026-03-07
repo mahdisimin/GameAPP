@@ -33,8 +33,7 @@ func (u UserService) Register(userReq RegisterRequest) (RegisterResponse, error)
 	if isPhoneNumberExists, err := u.Repo.IsPhoneNumberExist(userReq.PhoneNumber); isPhoneNumberExists || err != nil {
 		if isPhoneNumberExists {
 			return RegisterResponse{}, fmt.Errorf("phoneNumber %s already exists", userReq.PhoneNumber)
-		}
-		if err != nil {
+		} else if err != nil {
 			return RegisterResponse{}, fmt.Errorf("check phone number uniqueness failed: %w", err)
 
 		}
