@@ -6,12 +6,16 @@ import (
 )
 
 type UserService struct {
-	Repo UserRepository
+	Repo     UserRepository
+	Delivery Delivery
 }
 
 type UserRepository interface {
 	IsPhoneNumberExist(phoneNumber string) (bool, error)
 	RegisterUser(entity.User) (entity.User, error)
+}
+
+type Delivery struct {
 }
 
 type RegisterRequest struct {
