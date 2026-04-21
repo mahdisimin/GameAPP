@@ -8,6 +8,13 @@ import (
 	"strings"
 )
 
+const (
+	baseRoute = "C:\\simin\\Projects\\gameapp"
+)
+
+type File struct {
+}
+
 func (f File) IsPhoneNumberExist(phoneNumber string) (bool, error) {
 	isExists := false
 
@@ -27,12 +34,11 @@ func (f File) IsPhoneNumberExist(phoneNumber string) (bool, error) {
 func (f File) RegisterUser(user entity.User) (entity.User, error) {
 	userId := uint8(f.getLastID())
 	user.ID = userId
-	f.baseRoute = baseRoute
 	dataByte := make([]byte, 1024)
 	userJson, _ := json.Marshal(user)
 	dataByte = append(userJson, '\n')
 	fmt.Println(string(userJson))
-	file, err := os.OpenFile(f.baseRoute+"\\Users.txt", os.O_APPEND|os.O_CREATE|os.O_RDWR, 0777)
+	file, err := os.OpenFile(baseRoute+"\\Users.txt", os.O_APPEND|os.O_CREATE|os.O_RDWR, 0777)
 	if err != nil {
 		return entity.User{}, err
 	}
@@ -60,8 +66,7 @@ func (f File) GetAllUsers() ([]entity.User, error) {
 	var userSlice []entity.User
 	dataByte := make([]byte, 1024)
 	file := &os.File{}
-	f.baseRoute = baseRoute
-	if fileTemp, err := os.OpenFile(f.baseRoute+"\\Users.txt", os.O_RDONLY|os.O_CREATE|os.O_RDWR, 0777); err != nil {
+	if fileTemp, err := os.OpenFile(baseRoute+"\\Users.txt", os.O_RDONLY|os.O_CREATE|os.O_RDWR, 0777); err != nil {
 		return []entity.User{}, err
 	} else {
 		file = fileTemp
