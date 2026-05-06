@@ -10,6 +10,7 @@ func ResloveRouter() error {
 	mux := http.NewServeMux()
 
 	mux.HandleFunc("/user/register", Handler.UserRegisterHandler)
+	mux.HandleFunc("/user/login", Handler.UserLoginHandler)
 	mux.HandleFunc("/HealthCheck", Handler.HealthCheckHandler)
 
 	log.Println("Server is Listening on port 8088")

@@ -15,6 +15,11 @@ const (
 type File struct {
 }
 
+func (f File) GetUserByPhoneNumber(phoneNumber string) (entity.User, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
 func (f File) IsPhoneNumberExist(phoneNumber string) (bool, error) {
 	isExists := false
 

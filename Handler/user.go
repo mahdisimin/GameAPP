@@ -2,6 +2,7 @@ package Handler
 
 import (
 	"encoding/json"
+	"fmt"
 	"gameapp/repository/file"
 	"gameapp/service"
 	"io"
@@ -11,6 +12,7 @@ import (
 
 func UserRegisterHandler(w http.ResponseWriter, r *http.Request) {
 	var userReq service.UserRegisterRequest
+	var userRes service.UserRegisterResponse
 	var fileRepo file.File
 	var data = make([]byte, r.ContentLength)
 	userService := service.NewUserService(fileRepo)
@@ -22,19 +24,66 @@ func UserRegisterHandler(w http.ResponseWriter, r *http.Request) {
 
 	if dataRaedAll, err := io.ReadAll(r.Body); err != nil {
 		w.WriteHeader(http.StatusBadRequest)
+
+		return
 	} else {
 		data = dataRaedAll
 	}
 
 	if err := json.Unmarshal(data, &userReq); err != nil {
 		w.WriteHeader(http.StatusBadRequest)
-	}
-	if _, err := w.Write([]byte(`{"Message" : "New User Register"}`)); err != nil {
-		log.Fatal("UserRegisterHandler err:", err)
+
+		return
 	}
 
-	if _, err := userService.Register(userReq); err != nil {
+	if uRes, err := userService.Register(userReq); err != nil {
 		w.WriteHeader(http.StatusBadRequest)
+		fmt.Fprintf(w, `{"Message":"Error on register user : %v"}`, err.Error())
+		log.Printf("Error on register user : %s", err)
+
+		return
+	} else {
+		userRes = uRes
 	}
+
+	if _, err := fmt.Fprintf(w, `{"Message":"User %s register successfully"}`, userRes.User.Name); err != nil {
+		log.Fatal("Error with Writing on Writer")
+	}
+
+}
+
+func UserLoginHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		w.WriteHeader(http.StatusMethodNotAllowed)
+		return
+	}
+	var loginReq service.UserLoginRequest
+	var userRes service.UserLoginResponse
+	var data = make([]byte, r.ContentLength)
+	fileRepo := file.File{}
+	userService := service.NewUserService(fileRepo)
+	if dataTemp, err := io.ReadAll(r.Body); err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		fmt.Fprintf(w, `{"Message":"Error on read user request : %s"}`, err.Error())
+		return
+	} else {
+		data = dataTemp
+	}
+	if err := json.Unmarshal(data, &loginReq); err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		log.Printf(`{"Message":"Error on unmarshal user request : %s"}`, err.Error())
+	}
+
+	if userResTemp, err := userService.Login(loginReq); err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		fmt.Fprintf(w, `{"Message":"Error on login user : %s"}`, err.Error())
+		log.Printf("Error on login user : %s", err)
+
+		return
+	} else {
+		userRes = userResTemp
+	}
+	w.WriteHeader(http.StatusOK)
+	fmt.Fprintf(w, `{"Message":"UserID %d , logged in successfully"}`, userRes.UserID)
 
 }
