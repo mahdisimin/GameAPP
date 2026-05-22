@@ -93,13 +93,13 @@ func (u UserService) Login(userReq UserLoginRequest) (UserLoginResponse, error) 
 	isExists, err := u.Repo.IsPhoneNumberExist(userReq.PhoneNumber)
 	if err != nil || !isExists {
 		if err != nil {
-			return UserLoginResponse{}, fmt.Errorf("check phone number failed: %s", err.Error())
+			return UserLoginResponse{}, fmt.Errorf("check phone number failed - Repo : %s", err.Error())
 		}
 		return UserLoginResponse{}, errors.New("phone number does not exist")
 	}
 	hashPassword := hashTextFunc(userReq.Password)
 	if usertemp, err := u.Repo.GetUserByPhoneNumber(userReq.PhoneNumber); err != nil {
-		return UserLoginResponse{}, fmt.Errorf("check phone number failed: %s", err.Error())
+		return UserLoginResponse{}, fmt.Errorf("check phone number failed - Repo : %s", err.Error())
 	} else {
 		user = usertemp
 	}

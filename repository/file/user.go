@@ -2,6 +2,7 @@ package file
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"gameapp/entity"
 	"os"
@@ -16,16 +17,27 @@ type File struct {
 }
 
 func (f File) GetUserByPhoneNumber(phoneNumber string) (entity.User, error) {
-	//TODO implement me
-	panic("implement me")
+	var userList []entity.User
+	if userListTemp, err := f.GetAllUsers(); err != nil {
+		return entity.User{}, err
+	} else {
+		userList = userListTemp
+	}
+	for _, user := range userList {
+		if user.PhoneNumber == phoneNumber {
+			return user, nil
+		}
+	}
+	return entity.User{}, errors.New("user not found")
 }
 
 func (f File) IsPhoneNumberExist(phoneNumber string) (bool, error) {
 	isExists := false
-
-	allUsers, err := f.GetAllUsers()
-	if err != nil {
-		return false, fmt.Errorf("failed on getAllUsers: %v", err.Error())
+	var allUsers []entity.User
+	if allUsersTemp, err := f.GetAllUsers(); err != nil {
+		return false, err
+	} else {
+		allUsers = allUsersTemp
 	}
 	for _, user := range allUsers {
 		if user.PhoneNumber == phoneNumber {
