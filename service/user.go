@@ -1,11 +1,10 @@
 package service
 
 import (
-	"crypto/md5"
-	"encoding/hex"
 	"errors"
 	"fmt"
 	"gameapp/entity"
+	"gameapp/pkg"
 )
 
 type UserService struct {
@@ -65,7 +64,7 @@ func (u UserService) Register(userReq UserRegisterRequest) (UserRegisterResponse
 
 	}
 
-	hashPassword := hashTextFunc(userReq.Password)
+	hashPassword := pkg.HashTextFunc(userReq.Password)
 
 	user := entity.User{
 		ID:          0,
@@ -97,7 +96,7 @@ func (u UserService) Login(userReq UserLoginRequest) (UserLoginResponse, error) 
 		}
 		return UserLoginResponse{}, errors.New("phone number does not exist")
 	}
-	hashPassword := hashTextFunc(userReq.Password)
+	hashPassword := pkg.HashTextFunc(userReq.Password)
 	if usertemp, err := u.Repo.GetUserByPhoneNumber(userReq.PhoneNumber); err != nil {
 		return UserLoginResponse{}, fmt.Errorf("check phone number failed - Repo : %s", err.Error())
 	} else {
@@ -110,11 +109,4 @@ func (u UserService) Login(userReq UserLoginRequest) (UserLoginResponse, error) 
 	return UserLoginResponse{
 		int(user.ID),
 	}, nil
-}
-
-func hashTextFunc(text string) string {
-	plainPass := text
-	hashPass := md5.Sum([]byte(plainPass))
-	hashText := hex.EncodeToString(hashPass[:])
-	return hashText
 }
