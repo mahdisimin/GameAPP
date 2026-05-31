@@ -10,7 +10,7 @@ import (
 )
 
 const (
-	baseRoute = "C:\\simin\\Projects\\gameapp"
+	baseRoute = "D:\\Learning\\Go Lang\\gameapp"
 )
 
 type File struct {

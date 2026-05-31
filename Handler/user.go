@@ -76,14 +76,19 @@ func UserLoginHandler(w http.ResponseWriter, r *http.Request) {
 
 	if userResTemp, err := userService.Login(loginReq); err != nil {
 		w.WriteHeader(http.StatusBadRequest)
-		fmt.Fprintf(w, `{"Message":"Error on login user : %s"}`, err.Error())
 		log.Printf("Error on login user : %s", err)
 
 		return
 	} else {
 		userRes = userResTemp
 	}
-	w.WriteHeader(http.StatusOK)
-	fmt.Fprintf(w, `{"Message":"UserID %d , logged in successfully"}`, userRes.UserID)
+	userRespByte, marErr := json.Marshal(userRes)
+	if marErr != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		log.Printf("Error on marshal user : %s", marErr.Error())
 
+		return
+	}
+	w.WriteHeader(http.StatusOK)
+	w.Write(userRespByte)
 }

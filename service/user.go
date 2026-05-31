@@ -40,7 +40,8 @@ type UserLoginRequest struct {
 	Password    string `json:"password"`
 }
 type UserLoginResponse struct {
-	UserID int `json:"user_id"`
+	UserID int    `json:"user_id"`
+	Token  string `json:"token"`
 }
 
 func (u UserService) Register(userReq UserRegisterRequest) (UserRegisterResponse, error) {
@@ -88,7 +89,7 @@ func (u UserService) Register(userReq UserRegisterRequest) (UserRegisterResponse
 
 func (u UserService) Login(userReq UserLoginRequest) (UserLoginResponse, error) {
 	var user entity.User
-
+	var jwtToken string
 	isExists, err := u.Repo.IsPhoneNumberExist(userReq.PhoneNumber)
 	if err != nil || !isExists {
 		if err != nil {
@@ -105,8 +106,14 @@ func (u UserService) Login(userReq UserLoginRequest) (UserLoginResponse, error) 
 	if user.Password != hashPassword {
 		return UserLoginResponse{}, errors.New("password does not match")
 	}
+	if jwtTokenTemp, err := pkg.Create_JWT_token(user.ID); err != nil {
+		return UserLoginResponse{}, fmt.Errorf("create jwt token failed - JWT : %s", err.Error())
+	} else {
+		jwtToken = jwtTokenTemp
+	}
 
 	return UserLoginResponse{
 		int(user.ID),
+		jwtToken,
 	}, nil
 }
