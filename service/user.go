@@ -15,6 +15,7 @@ type UserRepository interface {
 	IsPhoneNumberExist(phoneNumber string) (bool, error)
 	RegisterUser(entity.User) (entity.User, error)
 	GetUserByPhoneNumber(phoneNumber string) (entity.User, error)
+	GetProfileByUserID(userID uint8) (string, error)
 }
 
 type UserRegisterRequest struct {
@@ -42,6 +43,14 @@ type UserLoginRequest struct {
 type UserLoginResponse struct {
 	UserID int    `json:"user_id"`
 	Token  string `json:"token"`
+}
+
+type GetProfileRequest struct {
+	userID uint8
+}
+
+type GetProfileResponse struct {
+	UserName string
 }
 
 func (u UserService) Register(userReq UserRegisterRequest) (UserRegisterResponse, error) {
@@ -116,4 +125,18 @@ func (u UserService) Login(userReq UserLoginRequest) (UserLoginResponse, error) 
 		int(user.ID),
 		jwtToken,
 	}, nil
+}
+
+func (u UserService) GetProfile(req GetProfileRequest) (res GetProfileResponse, err error) {
+	var userName string
+	if userNameTmp, err := u.Repo.GetProfileByUserID(req.userID); err != nil {
+		return GetProfileResponse{}, err
+	} else {
+		userName = userNameTmp
+	}
+	res = GetProfileResponse{
+		UserName: userName,
+	}
+	return res, nil
+
 }

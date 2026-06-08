@@ -3,6 +3,7 @@ package Handler
 import (
 	"encoding/json"
 	"fmt"
+	"gameapp/pkg"
 	"gameapp/repository/file"
 	"gameapp/service"
 	"io"
@@ -91,4 +92,23 @@ func UserLoginHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	w.WriteHeader(http.StatusOK)
 	w.Write(userRespByte)
+}
+
+func GetProfileHandler(w http.ResponseWriter, r *http.Request) {
+	jwtStr := r.Header.Get("Authorization")
+
+	if r.Method != http.MethodGet {
+		w.WriteHeader(http.StatusMethodNotAllowed)
+		return
+	}
+	claims, errJWT := pkg.ParseJWT(jwtStr)
+	if errJWT != nil {
+		w.WriteHeader(http.StatusUnauthorized)
+		log.Printf(`{"Message":"Error on parse JWT : %s"}`, errJWT.Error())
+
+		return
+	}
+	userID := claims.UserID
+	fmt.Println(userID)
+
 }

@@ -10,10 +10,15 @@ import (
 )
 
 const (
-	baseRoute = "D:\\Learning\\Go Lang\\gameapp"
+	baseRoute = "C:\\simin\\Projects\\gameapp"
 )
 
 type File struct {
+}
+
+func (f File) GetProfileByUserID(userID uint8) (string, error) {
+	//TODO implement me
+	panic("implement me")
 }
 
 func (f File) GetUserByPhoneNumber(phoneNumber string) (entity.User, error) {
