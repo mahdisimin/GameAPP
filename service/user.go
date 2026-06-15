@@ -46,11 +46,11 @@ type UserLoginResponse struct {
 }
 
 type GetProfileRequest struct {
-	userID uint8
+	UserID uint8
 }
 
 type GetProfileResponse struct {
-	UserName string
+	UserName string `json:"user_name"`
 }
 
 func (u UserService) Register(userReq UserRegisterRequest) (UserRegisterResponse, error) {
@@ -129,7 +129,7 @@ func (u UserService) Login(userReq UserLoginRequest) (UserLoginResponse, error) 
 
 func (u UserService) GetProfile(req GetProfileRequest) (res GetProfileResponse, err error) {
 	var userName string
-	if userNameTmp, err := u.Repo.GetProfileByUserID(req.userID); err != nil {
+	if userNameTmp, err := u.Repo.GetProfileByUserID(req.UserID); err != nil {
 		return GetProfileResponse{}, err
 	} else {
 		userName = userNameTmp

@@ -33,13 +33,13 @@ func UserRegisterHandler(w http.ResponseWriter, r *http.Request) {
 
 	if err := json.Unmarshal(data, &userReq); err != nil {
 		w.WriteHeader(http.StatusBadRequest)
+		log.Printf("Error on register user : %s", err)
 
 		return
 	}
 
 	if uRes, err := userService.Register(userReq); err != nil {
 		w.WriteHeader(http.StatusBadRequest)
-		fmt.Fprintf(w, `{"Message":"Error on register user : %v"}`, err.Error())
 		log.Printf("Error on register user : %s", err)
 
 		return
@@ -95,8 +95,12 @@ func UserLoginHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetProfileHandler(w http.ResponseWriter, r *http.Request) {
+	userServ := service.UserService{
+		file.File{},
+	}
+	var getProfileReq service.GetProfileRequest
+	var getProfileResp service.GetProfileResponse
 	jwtStr := r.Header.Get("Authorization")
-
 	if r.Method != http.MethodGet {
 		w.WriteHeader(http.StatusMethodNotAllowed)
 		return
@@ -109,6 +113,26 @@ func GetProfileHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	userID := claims.UserID
-	fmt.Println(userID)
+	getProfileReq = service.GetProfileRequest{
+		userID,
+	}
+	if res, err := userServ.GetProfile(getProfileReq); err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		log.Printf(`{"Message":"Error on get user profile : %s"}`, err.Error())
+
+		return
+	} else {
+		getProfileResp = res
+	}
+	getProfileRespJsonBytes, errJ := json.Marshal(getProfileResp)
+	if errJ != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		log.Printf(`{"Message":"Error on marshal user profile : %s"}`, errJ.Error())
+
+		return
+	}
+
+	w.Write(getProfileRespJsonBytes)
+	//w.WriteHeader(http.StatusOK)
 
 }

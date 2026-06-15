@@ -13,7 +13,7 @@ const signKey = "secret"
 
 type Claim struct {
 	jwt.RegisteredClaims
-	UserID int `json:"user_id"`
+	UserID uint8 `json:"user_id"`
 }
 
 func Create_JWT_token(userID uint8) (string, error) {
@@ -26,7 +26,7 @@ func Create_JWT_token(userID uint8) (string, error) {
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	tokenString, err := token.SignedString(signKey)
+	tokenString, err := token.SignedString([]byte(signKey))
 
 	return tokenString, err
 

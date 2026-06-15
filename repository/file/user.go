@@ -10,15 +10,28 @@ import (
 )
 
 const (
-	baseRoute = "C:\\simin\\Projects\\gameapp"
+	baseRoute = "D:\\Learning\\Go Lang\\gameapp"
 )
 
 type File struct {
 }
 
 func (f File) GetProfileByUserID(userID uint8) (string, error) {
-	//TODO implement me
-	panic("implement me")
+	var userName string
+	var userList []entity.User
+	if userListTemp, err := f.GetAllUsers(); err != nil {
+		return "", err
+	} else {
+		userList = userListTemp
+	}
+	for _, user := range userList {
+		if user.ID == userID {
+			userName = user.Name
+			return userName, nil
+		}
+	}
+
+	return "", errors.New("User not found")
 }
 
 func (f File) GetUserByPhoneNumber(phoneNumber string) (entity.User, error) {
